@@ -142,6 +142,30 @@ export async function getUserCourses(req, res, next) {
 }
 
 /**
+ * Get a single enrolled course for a user
+ */
+export async function getUserCourse(req, res, next) {
+  try {
+    const { userId, courseId } = req.params;
+    const user = await UserService.getById(userId);
+    if (!user) return res.status(404).json(errorResponse('Not found', 'User not found'));
+
+    // ensure user is enrolled in this course
+    const enrolledIds = (user.enrolledCourses || []).map(String);
+    if (!enrolledIds.includes(String(courseId))) {
+      return res.status(404).json(errorResponse('Not found', 'User not enrolled in this course'));
+    }
+
+    const course = await CourseService.getById(courseId);
+    if (!course) return res.status(404).json(errorResponse('Not found', 'Course not found'));
+
+    res.json(successResponse(course, 'Enrolled course retrieved'));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * Get progress for a user in a course
  */
 export async function getProgress(req, res, next) {

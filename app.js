@@ -15,7 +15,8 @@ app.use(morgan('dev'));
 
 app.get('/health', (req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
 
-app.use('/api', routes);
+// Mount API routes at root-level (no /api prefix)
+app.use('/', routes);
 
 // ===== ROUTE DEBUGGER (GLOBAL) =====
 console.log('📌 Registered Express Routes:');
@@ -27,7 +28,7 @@ app._router.stack.forEach((layer) => {
     layer.handle.stack.forEach((handler) => {
       if (handler.route) {
         const methods = Object.keys(handler.route.methods).join(',').toUpperCase();
-        console.log(`${methods} /api${handler.route.path}`);
+        console.log(`${methods} ${handler.route.path}`);
       }
     });
   }

@@ -11,6 +11,7 @@ router.put('/:userId', userCtrl.updateUser);
 router.delete('/:userId', userCtrl.deleteUser);
 
 // enroll / withdraw
+router.get('/:userId/courses/:courseId', userCtrl.getUserCourse);
 router.get('/:userId/courses', userCtrl.getUserCourses);
 router.post('/:userId/courses', requireBodyFields(['courseId']), userCtrl.enrollInCourse);
 router.delete('/:userId/courses/:courseId', userCtrl.withdrawFromCourse);

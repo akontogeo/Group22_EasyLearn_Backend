@@ -17,3 +17,14 @@ Quick start
    npm run dev
 
 If no `MONGO_URI` is provided, the app uses built-in mock data for demonstration and testing.
+
+Base URL
+All API endpoints are exposed at the root (no `/api` prefix). Examples:
+
+- GET /health
+- GET /users
+- GET /users/:userId
+- GET /courses
+- GET /courses/:courseId
+
+Adjust your frontend or API client to call `/users` and `/courses` instead of `/api/users` or `/api/courses`.
