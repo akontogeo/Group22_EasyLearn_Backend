@@ -1,4 +1,5 @@
 import { RatingService } from '../services/ratingService.js';
+import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
 /**
@@ -7,8 +8,13 @@ import { successResponse, errorResponse } from '../utils/responses.js';
 export async function getRatings(req, res, next) {
   try {
     const { courseId } = req.params;
+    // ensure the course exists
+    const course = await CourseService.getById(courseId);
+    if (!course) return res.status(404).json(errorResponse('Not found', 'Course not found'));
+
     const list = await RatingService.listByCourse(courseId);
-    res.json(successResponse(list, 'Ratings retrieved'));
+    if (!list || list.length === 0) return res.json(successResponse([], `No ratings found for course ${courseId}`));
+    res.json(successResponse(list, `Ratings for course ${courseId} retrieved`));
   } catch (err) {
     next(err);
   }
