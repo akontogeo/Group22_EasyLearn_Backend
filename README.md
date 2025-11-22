@@ -9,7 +9,7 @@ Features
 - Centralized error handler and consistent response format
 - >10 routes across Users, Courses, Quizzes with GET/POST/PUT/DELETE
 
-Quick start
+New quick start
 1. Install dependencies:
    npm install
 2. Copy `.env.example` to `.env` and configure MONGO_URI (optional).
