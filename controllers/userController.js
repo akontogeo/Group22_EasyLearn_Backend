@@ -19,11 +19,22 @@ export async function listUsers(req, res, next) {
  */
 export async function getUser(req, res, next) {
   try {
-    const user = await UserService.getById(req.params.userId);
-    if (!user) return res.status(404).json(errorResponse('Not found', 'User not found'));
-    res.json(successResponse(user, 'User retrieved'));
+    const { userId } = req.params;
+    const user = await UserService.getById(userId);
+
+    if (!user) {
+      return res.status(404).json(errorResponse('Not found', 'User not found'));
+    }
+
+    const profile = {
+      username: user.username,
+      points: user.points,
+      isPremium: Boolean(user.isPremium),
+    };
+
+    return res.json(successResponse(profile, 'User profile loaded'));
   } catch (err) {
-    next(err);
+    return next(err);
   }
 }
 
@@ -45,11 +56,24 @@ export async function createUser(req, res, next) {
  */
 export async function updateUser(req, res, next) {
   try {
-    const updated = await UserService.update(req.params.userId, req.body);
-    if (!updated) return res.status(404).json(errorResponse('Not found', 'User not found'));
-    res.json(successResponse(updated, 'User updated'));
+    const { userId } = req.params;
+    const payload = req.body;
+
+    const updatedUser = await UserService.update(userId, payload);
+
+    if (!updatedUser) {
+      return res.status(404).json(errorResponse('Not found', 'User not found'));
+    }
+
+    const profile = {
+      username: updatedUser.username,
+      points: updatedUser.points,
+      isPremium: Boolean(updatedUser.isPremium),
+    };
+
+    return res.json(successResponse(profile, 'User updated'));
   } catch (err) {
-    next(err);
+    return next(err);
   }
 }
 
@@ -132,12 +156,31 @@ export async function getUserCourses(req, res, next) {
   try {
     const { userId } = req.params;
     const user = await UserService.getById(userId);
-    if (!user) return res.status(404).json(errorResponse('Not found', 'User not found'));
+
+    if (!user) {
+      return res.status(404).json(errorResponse('Not found', 'User not found'));
+    }
+
     const allCourses = await CourseService.list();
-    const enrolled = (user.enrolledCourses || []).map(id => allCourses.find(c => String(c.courseId) === String(id))).filter(Boolean);
-    res.json(successResponse(enrolled, 'User courses retrieved'));
+    const enrolledIds = Array.isArray(user.enrolledCourses) ? user.enrolledCourses : [];
+
+    const enrolledIdSet = new Set(enrolledIds.map((id) => String(id)));
+
+    const enrolledCourses = (allCourses || [])
+      .filter((course) => enrolledIdSet.has(String(course.courseId)))
+      .map((course) => ({
+        id: course.courseId,
+        title: course.title,
+        shortDescription: course.shortDescription,
+        category: course.category,
+        difficulty: course.difficulty,
+        isPremium: Boolean(course.premium),
+        thumbnailUrl: course.thumbnailUrl,
+      }));
+
+    return res.json(successResponse(enrolledCourses, 'User courses retrieved'));
   } catch (err) {
-    next(err);
+    return next(err);
   }
 }
 
