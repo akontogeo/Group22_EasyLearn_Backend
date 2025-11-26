@@ -3,7 +3,7 @@ import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
 /**
- * Get ratings for a course
+ * Get reviews for a course
  */
 export async function getRatings(req, res, next) {
   try {
@@ -13,15 +13,15 @@ export async function getRatings(req, res, next) {
     if (!course) return res.status(404).json(errorResponse('Not found', 'Course not found'));
 
     const list = await RatingService.listByCourse(courseId);
-    if (!list || list.length === 0) return res.json(successResponse([], `No ratings found for course ${courseId}`));
-    res.json(successResponse(list, `Ratings for course ${courseId} retrieved`));
+    if (!list || list.length === 0) return res.json(successResponse([], `No reviews found for course ${courseId}`));
+    res.json(successResponse(list, `Reviews for course ${courseId} retrieved`));
   } catch (err) {
     next(err);
   }
 }
 
 /**
- * Submit a rating for a course
+ * Submit a review for a course
  */
 export async function submitRating(req, res, next) {
   try {

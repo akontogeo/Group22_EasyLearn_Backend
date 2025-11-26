@@ -12,7 +12,7 @@ router.get('/:courseId', courseCtrl.getCourse);
 router.put('/:courseId', basicAuth, courseCtrl.editCourse);
 router.delete('/:courseId', basicAuth, courseCtrl.removeCourse);
 
-// mount ratings endpoints under /:courseId/ratings
-router.use('/:courseId/ratings', ratingsRouter);
+// mount reviews endpoints under /:courseId/reviews
+router.use('/:courseId/reviews', ratingsRouter);
 
 export default router;

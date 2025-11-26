@@ -84,6 +84,11 @@ export async function enrollInCourse(req, res, next) {
     const enrolled = (user.enrolledCourses || []).includes(Number(courseId));
     if (!enrolled) {
       const updated = await UserService.update(userId, { enrolledCourses: [...(user.enrolledCourses || []), Number(courseId)] });
+      
+      // Initialize progress for this course
+      const { ProgressService } = await import('../services/progressService.js');
+      await ProgressService.upsertProgress(userId, courseId, 0);
+      
       return res.json(successResponse(updated, 'Enrolled successfully'));
     }
     res.status(200).json(successResponse(user, 'Already enrolled'));
