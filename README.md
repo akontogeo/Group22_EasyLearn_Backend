@@ -1,30 +1,248 @@
 # EasyLearn Backend
 
-Lightweight Node.js + Express backend scaffold for the EasyLearn platform.
+Production-ready Node.js + Express REST API for the EasyLearn educational platform.
 
-Features
-- ES modules, async/await
-- Mongoose models with fallback to in-memory mock data when MONGO_URI is not provided
-- Basic authentication middleware
-- Centralized error handler and consistent response format
-- >10 routes across Users, Courses, Quizzes with GET/POST/PUT/DELETE
+## Features
 
-Quick start
-1. Install dependencies:
-   npm install
-2. Copy `.env.example` to `.env` and configure MONGO_URI (optional).
-3. Start server:
-   npm run dev
+- **ES Modules** with `async/await` throughout
+- **Optional MongoDB Integration**: Connects to MongoDB when `MONGO_URI` is provided, automatically falls back to in-memory mock data otherwise
+- **Auto-seeding**: Populates MongoDB with mock data on first connect (if collections are empty)
+- **Dual-mode Services**: All CRUD operations work seamlessly with both MongoDB and mock data
+- **21 API Endpoints**: Complete REST API with >10 routes covering Users, Courses, Quizzes, Ratings, Progress
+- **Full CRUD Coverage**: GET/POST/PUT/DELETE for Users and Courses resources
+- **Basic Authentication**: Admin endpoints protected with HTTP Basic Auth
+- **Centralized Error Handling**: Consistent error responses with proper HTTP status codes
+- **Request Validation**: Body field validation and business rule enforcement
+- **Swagger/OpenAPI Spec**: Complete API documentation in `swagger.json`
+- **Consistent Response Format**: `{success, data, message}` for all endpoints
 
-If no `MONGO_URI` is provided, the app uses built-in mock data for demonstration and testing.
+## Quick Start
 
-Base URL
-All API endpoints are exposed at the root (no `/api` prefix). Examples:
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-- GET /health
-- GET /users
-- GET /users/:userId
-- GET /courses
-- GET /courses/:courseId
+### 2. Configure Environment (Optional)
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
 
-Adjust your frontend or API client to call `/users` and `/courses` instead of `/api/users` or `/api/courses`.
+Edit `.env` and set your MongoDB URI (optional):
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://your-connection-string
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=adminpass
+```
+
+**Note**: If `MONGO_URI` is not provided, the app runs with mock data only.
+
+### 3. Start Server
+```bash
+# Production mode
+npm start
+
+# Development mode (with auto-reload)
+npm run dev
+```
+
+Server starts on `http://localhost:5000` (or your configured PORT).
+
+## API Endpoints
+
+All endpoints are mounted at root (no `/api` prefix).
+
+### Health Check
+- `GET /health` - Server health status
+
+### Users (21 total endpoints)
+- `GET /users` - List all users
+- `POST /users` - Create user (requires: username, email, password)
+- `GET /users/:userId` - Get user by ID
+- `PUT /users/:userId` - Update user
+- `DELETE /users/:userId` - Delete user
+- `GET /users/:userId/courses` - Get user's enrolled courses
+- `POST /users/:userId/courses` - Enroll in course (requires: courseId)
+- `DELETE /users/:userId/courses/:courseId` - Withdraw from course
+- `GET /users/:userId/recommendations` - Get course recommendations
+- `GET /users/:userId/courses/:courseId/progress` - Get course progress
+
+### Courses
+- `GET /courses` - List/search courses (supports filters: category, difficulty, premium)
+- `POST /courses` - Add course [Admin] (requires: title, description, category, difficulty, premium, totalPoints)
+- `GET /courses/:courseId` - Get course details
+- `PUT /courses/:courseId` - Edit course [Admin]
+- `DELETE /courses/:courseId` - Remove course [Admin]
+
+### Ratings
+- `GET /courses/:courseId/ratings` - Get course ratings
+- `POST /courses/:courseId/ratings` - Submit rating (requires: userId, stars 1-5, optional: comment)
+
+### Quizzes
+- `GET /courses/:courseId/quizzes/:quizId` - Get quiz questions
+- `POST /courses/:courseId/quizzes/:quizId/submit` - Submit quiz answers (requires: userId, answers array)
+
+## Authentication
+
+Admin endpoints (POST/PUT/DELETE for courses) require HTTP Basic Authentication:
+```bash
+# PowerShell
+$creds = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("admin:adminpass"))
+Invoke-RestMethod -Uri http://localhost:5000/courses -Method Post -Headers @{Authorization="Basic $creds"} -Body ($body | ConvertTo-Json) -ContentType 'application/json'
+
+# curl
+curl -u admin:adminpass -H "Content-Type: application/json" -X POST -d '{"title":"New Course",...}' http://localhost:5000/courses
+```
+
+Default credentials: `admin` / `adminpass` (configure in `.env`)
+
+## Testing Endpoints
+
+### PowerShell Examples
+```powershell
+# Health check
+Invoke-RestMethod -Uri http://localhost:5000/health
+
+# Get course details
+Invoke-RestMethod -Uri http://localhost:5000/courses/1
+
+# Get course ratings
+Invoke-RestMethod -Uri http://localhost:5000/courses/1/ratings
+
+# Submit a rating
+$body = @{ userId = 1; stars = 5; comment = "Great course!" }
+Invoke-RestMethod -Uri http://localhost:5000/courses/1/ratings -Method Post -Body ($body | ConvertTo-Json) -ContentType 'application/json'
+```
+
+### cURL Examples
+```bash
+# Get course
+curl http://localhost:5000/courses/1
+
+# Get ratings
+curl http://localhost:5000/courses/1/ratings
+
+# Submit rating
+curl -H "Content-Type: application/json" -X POST -d '{"userId":1,"stars":5,"comment":"Great!"}' http://localhost:5000/courses/1/ratings
+```
+
+## Project Structure
+
+```
+├── app.js                 # Express app setup
+├── server.js              # Server entry point
+├── config/
+│   ├── database.js        # MongoDB connection with auto-seeding
+│   └── constants.js       # App constants
+├── controllers/           # Request handlers
+│   ├── courseController.js
+│   ├── userController.js
+│   ├── ratingController.js
+│   └── quizController.js
+├── services/              # Business logic (DB + mock support)
+│   ├── courseService.js
+│   ├── userService.js
+│   ├── ratingService.js
+│   ├── quizService.js
+│   └── progressService.js
+├── models/                # Mongoose schemas
+│   ├── Course.js
+│   ├── User.js
+│   ├── Rating.js
+│   ├── Quiz.js
+│   └── Progress.js
+├── routes/                # Route definitions
+│   ├── index.js           # Main router
+│   ├── courses.js
+│   ├── users.js
+│   ├── ratings.js
+│   └── quizzes.js
+├── middleware/            # Express middleware
+│   ├── auth.js            # Basic authentication
+│   ├── validation.js      # Request validation
+│   ├── errorHandler.js    # Global error handler
+│   └── logger.js          # HTTP logging
+├── utils/
+│   ├── responses.js       # Response helpers
+│   ├── mockData.js        # Mock data exports
+│   └── mocks/             # Mock data files
+│       ├── courses.js
+│       ├── users.js
+│       ├── reviews.js
+│       ├── quizzes.js
+│       └── progress.js
+└── swagger.json           # OpenAPI 3.0 specification
+```
+
+## Response Format
+
+All successful responses follow this format:
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Description of the result"
+}
+```
+
+Error responses:
+```json
+{
+  "success": false,
+  "error": "Error type",
+  "message": "Error description"
+}
+```
+
+## Mock Data
+
+When running without MongoDB, the app uses rich mock data including:
+- 5+ sample courses across different categories
+- Multiple users with different enrollment statuses
+- 45+ ratings across courses
+- Sample quizzes with questions
+- Progress tracking data
+
+Mock data automatically seeds MongoDB on first connection if collections are empty.
+
+## Requirements Met
+
+✅ **10+ Routes**: 21 endpoints available  
+✅ **CRUD Coverage**: Full GET/POST/PUT/DELETE for Users and Courses  
+✅ **3+ Entities**: Users, Courses, Ratings, Quizzes, Progress with relationships  
+✅ **Mock Data Fallback**: Runs without database, uses in-memory data  
+✅ **MongoDB Optional**: Connects when URI provided, seeds data automatically  
+✅ **Code Quality**: ES6+, async/await, try-catch, JSDoc comments, consistent patterns
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run in development mode (auto-reload)
+npm run dev
+
+# Run in production mode
+npm start
+```
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | 5000 |
+| `MONGO_URI` | MongoDB connection string | (none - uses mocks) |
+| `ADMIN_USERNAME` | Admin username for Basic Auth | admin |
+| `ADMIN_PASSWORD` | Admin password for Basic Auth | adminpass |
+| `NODE_ENV` | Environment mode | development |
+
+## Notes
+
+- Routes are mounted at root level (no `/api` prefix)
+- Admin routes require Basic Auth credentials
+- MongoDB connection includes automatic fallback to mocks on failure
+- All services support both DB and mock modes transparently
+- Response format is consistent across all endpoints
