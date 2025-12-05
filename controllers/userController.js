@@ -28,7 +28,7 @@ export async function getUser(req, res, next) {
 
     const profile = {
       username: user.username,
-      points: user.points,
+      points: user.points || 0,
       isPremium: Boolean(user.isPremium),
     };
 
@@ -67,7 +67,7 @@ export async function updateUser(req, res, next) {
 
     const profile = {
       username: updatedUser.username,
-      points: updatedUser.points,
+      points: updatedUser.points || 0,
       isPremium: Boolean(updatedUser.isPremium),
     };
 
