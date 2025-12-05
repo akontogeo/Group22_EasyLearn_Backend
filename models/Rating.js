@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 
-const { Schema, model } = mongoose;
-
-const RatingSchema = new Schema({
+const RatingSchema = new mongoose.Schema({
   ratingId: { type: Number, required: true, unique: true },
   userId: { type: Number, required: true },
   courseId: { type: Number, required: true },
@@ -10,4 +8,4 @@ const RatingSchema = new Schema({
   comment: { type: String }
 }, { timestamps: true });
 
-export default model('Rating', RatingSchema);
+export default mongoose.models.Rating || mongoose.model('Rating', RatingSchema);
