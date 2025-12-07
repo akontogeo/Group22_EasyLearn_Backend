@@ -28,8 +28,8 @@ describe('String Tests (Should Pass)', () => {
 });
 
 // UNCOMMENT THIS TO TEST CI/CD FAILURE
-describe('Intentional Failure Test', () => {
-  test('this test will fail', () => {
-    expect(1 + 1).toBe(3); // Wrong expectation
-  });
-});
+// describe('Intentional Failure Test', () => {
+//   test('this test will fail', () => {
+//     expect(1 + 1).toBe(3); // Wrong expectation
+//   });
+// });
