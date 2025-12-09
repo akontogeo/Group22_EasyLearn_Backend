@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const Schema = mongoose?.Schema || class {};
+const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -8,4 +9,5 @@ const UserSchema = new mongoose.Schema({
   enrolledCourses: [{ type: Number }]
 }, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+const User = mongoose?.models?.User || (mongoose?.model ? mongoose.model('User', UserSchema) : class {});
+export default User;

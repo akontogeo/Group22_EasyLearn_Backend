@@ -1,17 +1,19 @@
 import mongoose from 'mongoose';
 
-const QuizQuestionSchema = new mongoose.Schema({
+const Schema = mongoose?.Schema || class {};
+const QuizQuestionSchema = new Schema({
   questionId: { type: Number, required: true },
   questionText: { type: String, required: true },
   options: [{ type: String }],
   correctOption: { type: Number }
 });
 
-const QuizSchema = new mongoose.Schema({
+const QuizSchema = new Schema({
   quizId: { type: Number, required: true, unique: true },
   courseId: { type: Number, required: true },
   title: { type: String, required: true },
   questions: [QuizQuestionSchema]
 }, { timestamps: true });
 
-export default mongoose.models.Quiz || mongoose.model('Quiz', QuizSchema);
+const Quiz = mongoose?.models?.Quiz || (mongoose?.model ? mongoose.model('Quiz', QuizSchema) : class {});
+export default Quiz;

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const CourseSchema = new mongoose.Schema({
+const Schema = mongoose?.Schema || class {};
+const CourseSchema = new Schema({
   courseId: { type: Number, required: true, unique: true },
   title: { type: String, required: true },
   description: { type: String },
@@ -13,4 +14,5 @@ const CourseSchema = new mongoose.Schema({
   totalPoints: { type: Number, default: 0 }
 }, { timestamps: true });
 
-export default mongoose.models.Course || mongoose.model('Course', CourseSchema);
+const Course = mongoose?.models?.Course || (mongoose?.model ? mongoose.model('Course', CourseSchema) : class {});
+export default Course;
