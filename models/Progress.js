@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-const { Schema, model } = mongoose;
-
+const Schema = mongoose?.Schema || class {};
 const ProgressSchema = new Schema({
   progressId: { type: Number, required: true, unique: true },
   userId: { type: Number, required: true },
@@ -9,4 +8,5 @@ const ProgressSchema = new Schema({
   progressPercentage: { type: Number, default: 0 }
 }, { timestamps: true });
 
-export default model('Progress', ProgressSchema);
+const Progress = mongoose?.models?.Progress || (mongoose?.model ? mongoose.model('Progress', ProgressSchema) : class {});
+export default Progress;
