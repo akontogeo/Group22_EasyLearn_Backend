@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-const { Schema, model } = mongoose;
-
+const Schema = mongoose?.Schema || class {};
 const QuizQuestionSchema = new Schema({
   questionId: { type: Number, required: true },
   questionText: { type: String, required: true },
@@ -16,4 +15,5 @@ const QuizSchema = new Schema({
   questions: [QuizQuestionSchema]
 }, { timestamps: true });
 
-export default model('Quiz', QuizSchema);
+const Quiz = mongoose?.models?.Quiz || (mongoose?.model ? mongoose.model('Quiz', QuizSchema) : class {});
+export default Quiz;
