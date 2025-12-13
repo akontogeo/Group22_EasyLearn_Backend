@@ -6,6 +6,7 @@ import { connectDatabase } from './config/database.js';
 
 const PORT = process.env.PORT || 5000;
 
+// Initialize server with database connection
 (async () => {
   try {
     await connectDatabase();
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 5000;
       console.log(`EasyLearn server listening on port ${PORT}`);
     });
 
+    // Handle server errors, especially port conflicts
     server.on('error', (err) => {
       if (err && err.code === 'EADDRINUSE') {
         console.error(`Port ${PORT} is already in use. Please stop the process using that port or set PORT in environment.`);

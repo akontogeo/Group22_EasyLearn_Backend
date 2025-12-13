@@ -2,9 +2,7 @@ import { users as mockUsers, nextUserId } from '../utils/mockData.js';
 import UserModel from '../models/User.js';
 import { isDbConnected } from '../config/database.js';
 
-/**
- * Mock-only UserService. All operations operate against the in-memory arrays in `utils/mockData.js`.
- */
+// User service layer - uses MongoDB if connected, otherwise in-memory mock data
 export const UserService = {
   async list() {
     if (isDbConnected()) {

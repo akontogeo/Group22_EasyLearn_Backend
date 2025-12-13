@@ -1,6 +1,4 @@
-/**
- * Standardized response helpers
- */
+// Standardized JSON response helpers
 
 export function successResponse(data = null, message = '') {
   return { success: true, data, message };

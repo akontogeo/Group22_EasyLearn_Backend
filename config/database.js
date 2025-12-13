@@ -9,10 +9,8 @@ import { courses as mockCourses, users as mockUsers, ratings as mockRatings, qui
 let connected = false;
 
 /**
- * Attempt to connect to MongoDB when `MONGO_URI` is provided.
- * If no URI is provided, the function logs a message and leaves the process
- * using the in-memory mock data. When connected, the function also seeds
- * the collections with mock data if they are empty.
+ * Connect to MongoDB and seed with mock data if collections are empty.
+ * Falls back to in-memory mock data if MONGO_URI is not provided.
  */
 export async function connectDatabase() {
   const uri = process.env.MONGO_URI;
@@ -27,7 +25,7 @@ export async function connectDatabase() {
     connected = true;
     console.log('Connected to MongoDB');
 
-    // Seed mock data if collections empty
+    // Seed database with initial data if empty
     try {
       const courseCount = await CourseModel.countDocuments();
       if (courseCount === 0 && Array.isArray(mockCourses) && mockCourses.length) {

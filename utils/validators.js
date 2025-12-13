@@ -1,6 +1,5 @@
-/**
- * Simple validators for request values
- */
+// Simple validation and sanitization utilities
+
 export function isPositiveInteger(v) {
   const num = Number(v);
   return Number.isInteger(num) && num > 0;

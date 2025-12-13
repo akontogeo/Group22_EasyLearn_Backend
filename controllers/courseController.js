@@ -1,9 +1,7 @@
 import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
-/**
- * List courses with optional filters
- */
+// List courses with optional filters (category, difficulty, premium)
 export async function listCourses(req, res, next) {
   try {
     const filters = {};

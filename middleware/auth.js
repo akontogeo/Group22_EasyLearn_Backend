@@ -1,9 +1,7 @@
 import auth from 'basic-auth';
 import { DEFAULT_ADMIN } from '../config/constants.js';
 
-/**
- * Basic auth middleware. Accepts admin credentials from env or defaults.
- */
+// Middleware for HTTP Basic Authentication (admin-only routes)
 export function basicAuth(req, res, next) {
   const credentials = auth(req);
   if (!credentials || credentials.name !== DEFAULT_ADMIN.username || credentials.pass !== DEFAULT_ADMIN.password) {

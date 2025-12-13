@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// User schema definition
 const Schema = mongoose?.Schema || class {};
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },

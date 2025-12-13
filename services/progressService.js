@@ -1,5 +1,6 @@
 import { progress as mockProgress, nextProgressId } from '../utils/mockData.js';
 
+// Progress service layer - uses in-memory mock data
 export const ProgressService = {
   async getProgress(userId, courseId) {
     return mockProgress.find(p => String(p.userId) === String(userId) && String(p.courseId) === String(courseId));

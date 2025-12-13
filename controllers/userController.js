@@ -2,9 +2,7 @@ import { UserService } from '../services/userService.js';
 import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
-/**
- * List users
- */
+// List all users
 export async function listUsers(req, res, next) {
   try {
     const data = await UserService.list();

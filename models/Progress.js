@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// User course progress tracking schema
 const Schema = mongoose?.Schema || class {};
 const ProgressSchema = new Schema({
   progressId: { type: Number, required: true, unique: true },

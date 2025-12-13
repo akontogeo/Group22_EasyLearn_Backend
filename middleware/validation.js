@@ -1,6 +1,4 @@
-/**
- * Basic validation middleware example
- */
+// Middleware to validate required fields in request body
 export function requireBodyFields(fields = []) {
   return (req, res, next) => {
     const missing = fields.filter(f => !(f in req.body));

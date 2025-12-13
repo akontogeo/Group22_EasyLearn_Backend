@@ -1,12 +1,13 @@
 import { quizzes as mockQuizzes } from '../utils/mockData.js';
 
+// Quiz service layer - uses in-memory mock data
 export const QuizService = {
   async getQuiz(courseId, quizId) {
     return mockQuizzes.find(q => String(q.quizId) === String(quizId) && String(q.courseId) === String(courseId));
   },
 
+  // Grade quiz by comparing submitted answers with correct options
   async submitAnswers(courseId, quizId, submission) {
-    // grading simple: compare submitted indexes with correctOption
     const quiz = await this.getQuiz(courseId, quizId);
     if (!quiz) return null;
     const answers = submission.answers || [];

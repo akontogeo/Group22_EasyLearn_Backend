@@ -2,9 +2,7 @@ import { RatingService } from '../services/ratingService.js';
 import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
-/**
- * Get ratings for a course
- */
+// Get all ratings/reviews for a specific course
 export async function getRatings(req, res, next) {
   try {
     const { courseId } = req.params;

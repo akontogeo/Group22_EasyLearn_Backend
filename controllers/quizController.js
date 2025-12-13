@@ -1,15 +1,13 @@
 import { QuizService } from '../services/quizService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
-/**
- * Get quiz details
- */
+// Get quiz details (without correct answers)
 export async function getQuiz(req, res, next) {
   try {
     const { courseId, quizId } = req.params;
     const quiz = await QuizService.getQuiz(courseId, quizId);
     if (!quiz) return res.status(404).json(errorResponse('Not found', 'Quiz not found'));
-    // hide correct answers
+    // Hide correct answers from response
     const q = { ...quiz, questions: (quiz.questions || []).map(({ questionId, questionText, options }) => ({ questionId, questionText, options })) };
     res.json(successResponse(q, 'Quiz retrieved'));
   } catch (err) {

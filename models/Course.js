@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Course schema definition
 const Schema = mongoose?.Schema || class {};
 const CourseSchema = new Schema({
   courseId: { type: Number, required: true, unique: true },

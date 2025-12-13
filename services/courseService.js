@@ -2,9 +2,10 @@ import { courses as mockCourses, nextCourseId } from '../utils/mockData.js';
 import CourseModel from '../models/Course.js';
 import { isDbConnected } from '../config/database.js';
 
+// Course service layer - uses MongoDB if connected, otherwise in-memory mock data
 export const CourseService = {
   async list(filters = {}) {
-    // If DB connected, attempt to read from MongoDB
+    // Query MongoDB if connected
     if (isDbConnected()) {
       const mongoFilter = {};
       if (filters.category) mongoFilter.category = filters.category;

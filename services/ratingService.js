@@ -2,6 +2,7 @@ import { ratings as mockRatings, nextRatingId } from '../utils/mockData.js';
 import RatingModel from '../models/Rating.js';
 import { isDbConnected } from '../config/database.js';
 
+// Rating service layer - uses MongoDB if connected, otherwise in-memory mock data
 export const RatingService = {
   async listByCourse(courseId) {
     if (isDbConnected()) {

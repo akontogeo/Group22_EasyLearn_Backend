@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Rating/review schema definition
 const Schema = mongoose?.Schema || class {};
 const RatingSchema = new Schema({
   ratingId: { type: Number, required: true, unique: true },

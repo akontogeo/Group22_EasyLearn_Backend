@@ -8,17 +8,19 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
+// Security and middleware setup
+app.use(helmet());  // Security headers
+app.use(cors());    // Cross-origin resource sharing
+app.use(express.json());  // Parse JSON request bodies
+app.use(morgan('dev'));   // Request logging
 
+// Health check endpoint
 app.get('/health', (req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
 
-// Mount API routes at root-level (no /api prefix)
+// Mount API routes
 app.use('/', routes);
 
-// ===== ROUTE DEBUGGER (GLOBAL) =====
+// Debug: Log all registered routes for development
 console.log('📌 Registered Express Routes:');
 app._router.stack.forEach((layer) => {
   if (layer.route) {
@@ -34,15 +36,13 @@ app._router.stack.forEach((layer) => {
   }
 });
 console.log('===================================');
-// ===================================
 
-
-// 404
+// Handle 404 - route not found
 app.use((req, res, next) => {
   res.status(404).json({ success: false, error: 'Not Found', message: 'Route not found' });
 });
 
-// central error handler
+// Central error handling middleware
 app.use(errorHandler);
 
 export default app;

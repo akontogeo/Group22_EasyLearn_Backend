@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Quiz and question schema definitions
 const Schema = mongoose?.Schema || class {};
 const QuizQuestionSchema = new Schema({
   questionId: { type: Number, required: true },
