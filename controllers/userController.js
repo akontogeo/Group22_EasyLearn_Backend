@@ -5,7 +5,7 @@ import { successResponse, errorResponse } from '../utils/responses.js';
 /**
  * List users
  */
-export async function listUsers(req, res, next) {
+export async function listUsers(_req, res, next) {
   try {
     const data = await UserService.list();
     res.json(successResponse(data, 'Users retrieved'));
@@ -130,7 +130,7 @@ export async function withdrawFromCourse(req, res, next) {
     const user = await UserService.getById(userId);
     if (!user) return res.status(404).json(errorResponse('Not found', 'User not found'));
     const enrolled = (user.enrolledCourses || []).filter(c => String(c) !== String(courseId));
-  const updated = await UserService.update(userId, { enrolledCourses: enrolled });
+  await UserService.update(userId, { enrolledCourses: enrolled });
   // 204 No Content should not include a body
   res.status(204).end();
   } catch (err) {

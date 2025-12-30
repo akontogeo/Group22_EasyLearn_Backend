@@ -34,12 +34,6 @@ export const UserService = {
     return newUser;
   },
 
-  async create(payload) {
-    const newUser = { userId: nextUserId(), ...payload };
-    mockUsers.push(newUser);
-    return newUser;
-  },
-
   async update(userId, payload) {
     if (isDbConnected()) {
       const updated = await UserModel.findOneAndUpdate({ userId: Number(userId) }, payload, { new: true }).lean();

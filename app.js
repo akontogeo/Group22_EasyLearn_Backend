@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.get('/health', (req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
+app.get('/health', (_req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
 
 // Mount API routes at root-level (no /api prefix)
 app.use('/', routes);
@@ -38,7 +38,7 @@ console.log('===================================');
 
 
 // 404
-app.use((req, res, next) => {
+app.use((_req, res) => {
   res.status(404).json({ success: false, error: 'Not Found', message: 'Route not found' });
 });
 

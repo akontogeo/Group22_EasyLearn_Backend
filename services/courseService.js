@@ -42,12 +42,6 @@ export const CourseService = {
     return newCourse;
   },
 
-  async create(payload) {
-    const newCourse = { courseId: nextCourseId(), ...payload };
-    mockCourses.push(newCourse);
-    return newCourse;
-  },
-
   async update(courseId, payload) {
     if (isDbConnected()) {
       const updated = await CourseModel.findOneAndUpdate({ courseId: Number(courseId) }, payload, { new: true }).lean();
