@@ -15,7 +15,7 @@ app.use(express.json());  // Parse JSON request bodies
 app.use(morgan('dev'));   // Request logging
 
 // Health check endpoint
-app.get('/health', (req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
+app.get('/health', (_req, res) => res.json({ success: true, data: { status: 'ok' }, message: 'Healthy' }));
 
 // Mount API routes
 app.use('/', routes);
@@ -38,7 +38,7 @@ app._router.stack.forEach((layer) => {
 console.log('===================================');
 
 // Handle 404 - route not found
-app.use((req, res, next) => {
+app.use((_req, res,) => {
   res.status(404).json({ success: false, error: 'Not Found', message: 'Route not found' });
 });
 

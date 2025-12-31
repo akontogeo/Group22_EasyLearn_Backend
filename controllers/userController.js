@@ -3,7 +3,7 @@ import { CourseService } from '../services/courseService.js';
 import { successResponse, errorResponse } from '../utils/responses.js';
 
 // List all users
-export async function listUsers(req, res, next) {
+export async function listUsers(_req, res, next) {
   try {
     const data = await UserService.list();
     res.json(successResponse(data, 'Users retrieved'));
@@ -12,9 +12,7 @@ export async function listUsers(req, res, next) {
   }
 }
 
-/**
- * Get a single user by id
- */
+// Get a single user by id
 export async function getUser(req, res, next) {
   try {
     const { userId } = req.params;
@@ -36,9 +34,7 @@ export async function getUser(req, res, next) {
   }
 }
 
-/**
- * Create a user
- */
+// Create a user
 export async function createUser(req, res, next) {
   try {
     const payload = req.body;
@@ -49,9 +45,7 @@ export async function createUser(req, res, next) {
   }
 }
 
-/**
- * Update a user
- */
+//Update a user
 export async function updateUser(req, res, next) {
   try {
     const { userId } = req.params;
@@ -75,9 +69,7 @@ export async function updateUser(req, res, next) {
   }
 }
 
-/**
- * Delete a user
- */
+//Delete a user
 export async function deleteUser(req, res, next) {
   try {
     const removed = await UserService.remove(req.params.userId);
@@ -88,9 +80,7 @@ export async function deleteUser(req, res, next) {
   }
 }
 
-/**
- * Enroll user in course
- */
+//Enroll user in course
 export async function enrollInCourse(req, res, next) {
   try {
     const { userId } = req.params;
@@ -119,26 +109,24 @@ export async function enrollInCourse(req, res, next) {
   }
 }
 
-/**
- * Withdraw user from course
- */
+// Withdraw user from course
 export async function withdrawFromCourse(req, res, next) {
   try {
     const { userId, courseId } = req.params;
     const user = await UserService.getById(userId);
     if (!user) return res.status(404).json(errorResponse('Not found', 'User not found'));
     const enrolled = (user.enrolledCourses || []).filter(c => String(c) !== String(courseId));
-  const updated = await UserService.update(userId, { enrolledCourses: enrolled });
-  // 204 No Content should not include a body
-  res.status(204).end();
+    await UserService.update(userId, { enrolledCourses: enrolled });
+    
+    // 204 No Content should not include a body
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
 }
 
-/**
- * Simple recommendations: return other courses not enrolled
- */
+
+// Simple recommendations: return other courses not enrolled
 export async function recommendations(req, res, next) {
   try {
     const { userId } = req.params;
@@ -152,9 +140,7 @@ export async function recommendations(req, res, next) {
   }
 }
 
-/**
- * Get courses the user is enrolled in (detailed)
- */
+// Get courses the user is enrolled in (detailed)
 export async function getUserCourses(req, res, next) {
   try {
     const { userId } = req.params;
@@ -187,9 +173,7 @@ export async function getUserCourses(req, res, next) {
   }
 }
 
-/**
- * Get a single enrolled course for a user
- */
+// Get a single enrolled course for a user
 export async function getUserCourse(req, res, next) {
   try {
     const { userId, courseId } = req.params;
