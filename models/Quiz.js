@@ -10,11 +10,12 @@ import mongoose from 'mongoose';
  * @property {number} correctOption - Index of the correct option
  */
 const Schema = mongoose?.Schema || class {};
+
 const QuizQuestionSchema = new Schema({
-  questionId: { type: Number, required: true },
-  questionText: { type: String, required: true },
-  options: [{ type: String }],
-  correctOption: { type: Number }
+  questionId: { type: Number, required: true, min: 1 },
+  questionText: { type: String, required: true, trim: true, minlength: 3 },
+  options: [{ type: String, trim: true, minlength: 1 }],
+  correctOption: { type: Number, min: 0 }
 });
 
 /**
@@ -26,12 +27,22 @@ const QuizQuestionSchema = new Schema({
  * @property {string} title - Quiz title
  * @property {Array<QuizQuestion>} questions - List of quiz questions
  */
+
 const QuizSchema = new Schema({
-  quizId: { type: Number, required: true, unique: true },
-  courseId: { type: Number, required: true },
-  title: { type: String, required: true },
-  questions: [QuizQuestionSchema]
+  quizId: { type: Number, required: true, unique: true, min: 1 },
+  courseId: { type: Number, required: true, min: 1 },
+  title: { type: String, required: true, trim: true, minlength: 3 },
+  questions: { type: [QuizQuestionSchema], validate: v => Array.isArray(v) && v.length > 0 }
 }, { timestamps: true });
+
+/**
+ * Find a quiz by its unique quizId.
+ * @param {number} quizId
+ * @returns {Promise<Quiz|null>}
+ */
+QuizSchema.statics.findByQuizId = function(quizId) {
+  return this.findOne({ quizId });
+};
 
 /**
  * Mongoose model for Quiz.
