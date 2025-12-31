@@ -12,11 +12,21 @@ const router = express.Router();
  * @route PUT /users/:userId
  * @route DELETE /users/:userId
  */
+
+// Validate userId param middleware
+function validateUserId(req, res, next) {
+	const { userId } = req.params;
+	if (!/^[0-9]+$/.test(userId)) {
+		return res.status(400).json({ error: 'Invalid userId parameter' });
+	}
+	next();
+}
+
 router.get('/', userCtrl.listUsers);
 router.post('/', requireBodyFields(['username','email','password']), userCtrl.createUser);
-router.get('/:userId', userCtrl.getUser);
-router.put('/:userId', userCtrl.updateUser);
-router.delete('/:userId', userCtrl.deleteUser);
+router.get('/:userId', validateUserId, userCtrl.getUser);
+router.put('/:userId', validateUserId, userCtrl.updateUser);
+router.delete('/:userId', validateUserId, userCtrl.deleteUser);
 
 /**
  * Course enrollment routes for users
@@ -25,21 +35,33 @@ router.delete('/:userId', userCtrl.deleteUser);
  * @route POST /users/:userId/courses
  * @route DELETE /users/:userId/courses/:courseId
  */
-router.get('/:userId/courses/:courseId', userCtrl.getUserCourse);
-router.get('/:userId/courses', userCtrl.getUserCourses);
-router.post('/:userId/courses', requireBodyFields(['courseId']), userCtrl.enrollInCourse);
-router.delete('/:userId/courses/:courseId', userCtrl.withdrawFromCourse);
+
+// Validate courseId param middleware
+function validateCourseId(req, res, next) {
+	const { courseId } = req.params;
+	if (courseId && !/^[0-9]+$/.test(courseId)) {
+		return res.status(400).json({ error: 'Invalid courseId parameter' });
+	}
+	next();
+}
+
+router.get('/:userId/courses/:courseId', validateUserId, validateCourseId, userCtrl.getUserCourse);
+router.get('/:userId/courses', validateUserId, userCtrl.getUserCourses);
+router.post('/:userId/courses', validateUserId, requireBodyFields(['courseId']), userCtrl.enrollInCourse);
+router.delete('/:userId/courses/:courseId', validateUserId, validateCourseId, userCtrl.withdrawFromCourse);
 
 /**
  * Get course recommendations for a user
  * @route GET /users/:userId/recommendations
  */
-router.get('/:userId/recommendations', userCtrl.recommendations);
+
+router.get('/:userId/recommendations', validateUserId, userCtrl.recommendations);
 
 /**
  * User progress tracking for a course
  * @route GET /users/:userId/courses/:courseId/progress
  */
-router.get('/:userId/courses/:courseId/progress', userCtrl.getProgress);
+
+router.get('/:userId/courses/:courseId/progress', validateUserId, validateCourseId, userCtrl.getProgress);
 
 export default router;

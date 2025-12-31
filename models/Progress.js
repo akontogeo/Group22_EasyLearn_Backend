@@ -14,12 +14,23 @@ const Schema = mongoose?.Schema || class {};
 /**
  * Mongoose schema for Progress.
  */
+
 const ProgressSchema = new Schema({
-  progressId: { type: Number, required: true, unique: true },
-  userId: { type: Number, required: true },
-  courseId: { type: Number, required: true },
-  progressPercentage: { type: Number, default: 0 }
+  progressId: { type: Number, required: true, unique: true, min: 1 },
+  userId: { type: Number, required: true, min: 1 },
+  courseId: { type: Number, required: true, min: 1 },
+  progressPercentage: { type: Number, default: 0, min: 0, max: 100 }
 }, { timestamps: true });
+
+/**
+ * Find a user's progress for a specific course.
+ * @param {number} userId
+ * @param {number} courseId
+ * @returns {Promise<Progress|null>}
+ */
+ProgressSchema.statics.findByUserAndCourse = function(userId, courseId) {
+  return this.findOne({ userId, courseId });
+};
 
 /**
  * Mongoose model for Progress.
