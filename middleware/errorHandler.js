@@ -1,5 +1,5 @@
 // Centralized error handling middleware
-export function errorHandler(err, req, res, next) {
+export function errorHandler(err,_req, res, next) {
   console.error(err);
   if (res.headersSent) return next(err);
 
