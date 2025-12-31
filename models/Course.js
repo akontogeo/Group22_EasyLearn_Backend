@@ -16,18 +16,36 @@ import mongoose from 'mongoose';
  * @property {number} [totalPoints] - Total points for the course
  */
 const Schema = mongoose?.Schema || class {};
+
 const CourseSchema = new Schema({
-  courseId: { type: Number, required: true, unique: true },
-  title: { type: String, required: true },
-  description: { type: String },
-  category: { type: String },
-  difficulty: { type: String },
+  courseId: { type: Number, required: true, unique: true, min: 1 },
+  title: { type: String, required: true, trim: true, minlength: 3 },
+  description: { type: String, trim: true, maxlength: 1000 },
+  category: { type: String, trim: true },
+  difficulty: { type: String, enum: ['beginner', 'intermediate', 'advanced'] },
   premium: { type: Boolean, default: false },
-  courseImage: { type: String },
-  materialList: [{ type: String }],
-  quizList: [{ type: Number }],
-  totalPoints: { type: Number, default: 0 }
+  courseImage: { type: String, trim: true },
+  materialList: [{ type: String, trim: true }],
+  quizList: [{ type: Number, min: 1 }],
+  totalPoints: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
+
+/**
+ * Find a course by its unique courseId.
+ * @param {number} courseId
+ * @returns {Promise<Course|null>}
+ */
+CourseSchema.statics.findByCourseId = function(courseId) {
+  return this.findOne({ courseId });
+};
+
+/**
+ * List all premium courses.
+ * @returns {Promise<Course[]>}
+ */
+CourseSchema.statics.listPremium = function() {
+  return this.find({ premium: true });
+};
 
 /**
  * Mongoose model for Course.

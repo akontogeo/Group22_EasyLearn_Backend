@@ -11,13 +11,23 @@ import mongoose from 'mongoose';
  * @property {string} [comment] - Optional review comment
  */
 const Schema = mongoose?.Schema || class {};
+
 const RatingSchema = new Schema({
-  ratingId: { type: Number, required: true, unique: true },
-  userId: { type: Number, required: true },
-  courseId: { type: Number, required: true },
+  ratingId: { type: Number, required: true, unique: true, min: 1 },
+  userId: { type: Number, required: true, min: 1 },
+  courseId: { type: Number, required: true, min: 1 },
   stars: { type: Number, required: true, min: 1, max: 5 },
-  comment: { type: String }
+  comment: { type: String, trim: true, maxlength: 1000 }
 }, { timestamps: true });
+
+/**
+ * Find all ratings for a course.
+ * @param {number} courseId
+ * @returns {Promise<Rating[]>}
+ */
+RatingSchema.statics.findByCourseId = function(courseId) {
+  return this.find({ courseId });
+};
 
 /**
  * Mongoose model for Rating.
