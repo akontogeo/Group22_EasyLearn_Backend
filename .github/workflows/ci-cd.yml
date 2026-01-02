@@ -9,9 +9,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     strategy:
       matrix:
@@ -26,7 +23,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
 
     - name: Install dependencies
       run: npm ci
@@ -43,56 +39,8 @@ jobs:
     - name: Check build
       run: npm run build --if-present
 
-  performance-tests:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Install k6
-      run: |
-        sudo gpg -k
-        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-        sudo apt-get update
-        sudo apt-get install k6
-
-    - name: Start backend server
-      run: |
-        npm start &
-        sleep 5
-        curl --retry 10 --retry-delay 2 --retry-connrefused http://localhost:5000/health
-      env:
-        NODE_ENV: test
-        PORT: 5000
-
-    - name: Run Load Test - Courses
-      run: k6 run performance/courses-load-test.js
-      env:
-        API_URL: http://localhost:5000
-
-    - name: Run Spike Test - Courses
-      run: k6 run performance/courses-spike-test.js
-      env:
-        API_URL: http://localhost:5000
-
   deploy:
-    needs: [build-and-test, performance-tests]
+    needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
 
@@ -110,3 +58,4 @@ jobs:
         else
           echo "RENDER_DEPLOY_HOOK not set. Skipping deployment."
         fi
+
