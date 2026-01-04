@@ -92,7 +92,7 @@ jobs:
           API_URL: http://localhost:5000
         run: k6 run performance/users-spike-test.js
         
-        - name: Run k6 load test (/courses)
+      - name: Run k6 load test (/courses)
         env:
           API_URL: http://localhost:5000
         run: k6 run performance/courses-load-test.js
