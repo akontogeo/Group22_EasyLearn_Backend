@@ -21,12 +21,12 @@ export const COMMON_THRESHOLDS = {
 
 // Load test configuration (gradual ramp-up for sustained load)
 export const LOAD_TEST_CONFIG = {
-  maxVUs: 1000,
+  maxVUs: 2000,
   stages: [
     { duration: '30s', target: 100 },    // Warm up to 100
     { duration: '1m', target: 500 },     // Ramp to 500 VUs
-    { duration: '1m30s', target: 1000 }, // Ramp to 1000 VUs
-    { duration: '3m', target: 1000 },    // Sustain peak at 1000
+    { duration: '1m30s', target: 2000 }, // Ramp to 1000 VUs
+    { duration: '3m', target: 2000 },    // Sustain peak at 1000
     { duration: '1m', target: 0 },       // Ramp down
   ],
 };
