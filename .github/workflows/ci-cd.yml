@@ -91,6 +91,16 @@ jobs:
         env:
           API_URL: http://localhost:5000
         run: k6 run performance/users-spike-test.js
+        
+        - name: Run k6 load test (/courses)
+        env:
+          API_URL: http://localhost:5000
+        run: k6 run performance/courses-load-test.js
+
+      - name: Run k6 spike test (/courses)
+        env:
+          API_URL: http://localhost:5000
+        run: k6 run performance/courses-spike-test.js
 
   deploy:
     needs: [build-and-test, perf-tests]
