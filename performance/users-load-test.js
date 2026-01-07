@@ -1,25 +1,43 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { SharedArray } from 'k6/data';
 import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './config.js';
 
-/**
- * Load Test for /users/:userId endpoint
- *
- * Purpose: Test sustained load with gradual ramp-up to simulate normal traffic growth
- * NFRs:
- * - Error rate < 1% (enforced via thresholds)
- * - P95 response time under configured threshold (enforced via thresholds)
- */
+const IDS = new SharedArray('userIds', () => {
+  // Τραβάμε users μια φορά (init stage)
+  const res = http.get(`${BASE_URL}/users`);
 
-// Choose a reasonable ID range for your dataset.
-// If you don't know how many users exist, keep it small or set via env vars.
-const USER_ID_MIN = parseInt(__ENV.USER_ID_MIN || '1', 10);
-const USER_ID_MAX = parseInt(__ENV.USER_ID_MAX || '100', 10);
+  if (res.status !== 200) {
+    throw new Error(`Failed to fetch /users for IDs. Status=${res.status}`);
+  }
 
-function randomInt(min, max) {
-  if (!Number.isFinite(min) || !Number.isFinite(max) || max < min) return 1;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+  const data = res.json(); // περιμένουμε JSON array ή object που περιέχει array
+
+  // Προσπάθεια να πιάσουμε και τις 2 συνήθεις μορφές:
+  // 1) [ { id: 1 }, ... ]
+  // 2) { data: [ { id: 1 }, ... ] } ή { users: [...] }
+  const arr =
+    Array.isArray(data) ? data :
+    Array.isArray(data?.data) ? data.data :
+    Array.isArray(data?.users) ? data.users :
+    null;
+
+  if (!arr || arr.length === 0) {
+    throw new Error('No users returned from /users to build ID list.');
+  }
+
+  // Πιάνουμε id fields με διάφορα ονόματα
+  const ids = arr
+    .map(u => u.userId ?? u.id ?? u._id)
+    .filter(Boolean)
+    .map(String);
+
+  if (ids.length === 0) {
+    throw new Error('Could not extract any IDs from /users response.');
+  }
+
+  return ids;
+});
 
 export const options = {
   thresholds: COMMON_THRESHOLDS,
@@ -34,12 +52,12 @@ export const options = {
 };
 
 export default function () {
-  const userId = randomInt(USER_ID_MIN, USER_ID_MAX);
-  const url = `${BASE_URL}/users/${userId}`;
+  const id = IDS[Math.floor(Math.random() * IDS.length)];
+  const url = `${BASE_URL}/users/${encodeURIComponent(id)}`;
 
-  const response = http.get(url);
+  const res = http.get(url);
 
-  check(response, {
+  check(res, {
     'status is 200': (r) => r.status === 200,
     'response has body': (r) => r.body && r.body.length > 0,
   });
@@ -54,14 +72,12 @@ export function handleSummary(data) {
   const passed = failedRate < 0.01;
 
   console.log('\n========================================');
-  console.log('📊 LOAD TEST - /users/:userId');
+  console.log('📊 LOAD TEST - /users/:userId (valid IDs)');
   console.log('========================================');
   console.log(`Status: ${passed ? '✅ PASSED' : '❌ FAILED'}`);
   console.log(`P95 Response Time: ${p95?.toFixed(2)}ms`);
   console.log(`Error Rate: ${(failedRate * 100).toFixed(2)}%`);
   console.log('========================================\n');
 
-  return {
-    stdout: JSON.stringify(data, null, 2),
-  };
+  return { stdout: JSON.stringify(data, null, 2) };
 }
