@@ -1,43 +1,10 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { SharedArray } from 'k6/data';
 import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './config.js';
 
-const IDS = new SharedArray('userIds', () => {
-  // Τραβάμε users μια φορά (init stage)
-  const res = http.get(`${BASE_URL}/users`);
-
-  if (res.status !== 200) {
-    throw new Error(`Failed to fetch /users for IDs. Status=${res.status}`);
-  }
-
-  const data = res.json(); // περιμένουμε JSON array ή object που περιέχει array
-
-  // Προσπάθεια να πιάσουμε και τις 2 συνήθεις μορφές:
-  // 1) [ { id: 1 }, ... ]
-  // 2) { data: [ { id: 1 }, ... ] } ή { users: [...] }
-  const arr =
-    Array.isArray(data) ? data :
-    Array.isArray(data?.data) ? data.data :
-    Array.isArray(data?.users) ? data.users :
-    null;
-
-  if (!arr || arr.length === 0) {
-    throw new Error('No users returned from /users to build ID list.');
-  }
-
-  // Πιάνουμε id fields με διάφορα ονόματα
-  const ids = arr
-    .map(u => u.userId ?? u.id ?? u._id)
-    .filter(Boolean)
-    .map(String);
-
-  if (ids.length === 0) {
-    throw new Error('Could not extract any IDs from /users response.');
-  }
-
-  return ids;
-});
+/**
+ * Load Test for /users/:userId (valid IDs fetched in setup)
+ */
 
 export const options = {
   thresholds: COMMON_THRESHOLDS,
@@ -51,8 +18,47 @@ export const options = {
   },
 };
 
-export default function () {
-  const id = IDS[Math.floor(Math.random() * IDS.length)];
+// Runs once per test (allowed to make HTTP requests)
+export function setup() {
+  const res = http.get(`${BASE_URL}/users`);
+  check(res, { 'setup: /users is 200': (r) => r.status === 200 });
+
+  if (res.status !== 200) {
+    throw new Error(`setup() failed to fetch /users. Status=${res.status}`);
+  }
+
+  const data = res.json();
+
+  const arr =
+    Array.isArray(data) ? data :
+    Array.isArray(data?.data) ? data.data :
+    Array.isArray(data?.users) ? data.users :
+    null;
+
+  if (!arr || arr.length === 0) {
+    throw new Error('setup() found no users in /users response.');
+  }
+
+  const ids = arr
+    .map((u) => u.userId ?? u.id ?? u._id)
+    .filter(Boolean)
+    .map(String);
+
+  if (ids.length === 0) {
+    throw new Error('setup() could not extract any IDs from /users response.');
+  }
+
+  return { ids };
+}
+
+export default function (data) {
+  const ids = data?.ids || [];
+  if (ids.length === 0) {
+    // If setup failed silently (shouldn't), stop cleanly
+    return;
+  }
+
+  const id = ids[Math.floor(Math.random() * ids.length)];
   const url = `${BASE_URL}/users/${encodeURIComponent(id)}`;
 
   const res = http.get(url);
@@ -72,12 +78,14 @@ export function handleSummary(data) {
   const passed = failedRate < 0.01;
 
   console.log('\n========================================');
-  console.log('📊 LOAD TEST - /users/:userId (valid IDs)');
+  console.log('📊 LOAD TEST - /users/:userId (setup IDs)');
   console.log('========================================');
   console.log(`Status: ${passed ? '✅ PASSED' : '❌ FAILED'}`);
   console.log(`P95 Response Time: ${p95?.toFixed(2)}ms`);
   console.log(`Error Rate: ${(failedRate * 100).toFixed(2)}%`);
   console.log('========================================\n');
 
-  return { stdout: JSON.stringify(data, null, 2) };
+  return {
+    stdout: JSON.stringify(data, null, 2),
+  };
 }
