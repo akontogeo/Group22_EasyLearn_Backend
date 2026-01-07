@@ -24,7 +24,8 @@ export const options = {
 };
 
 export default function () {
-  const url = `${BASE_URL}/users`;
+  const userId = randomInt(USER_ID_MIN, USER_ID_MAX);
+  const url = `${BASE_URL}/users/${userId}`;
 
   const response = http.get(url);
 

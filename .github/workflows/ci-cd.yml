@@ -82,12 +82,12 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Run k6 load test (/users)
+      - name: Run k6 load test (/users/:userId)
         env:
           API_URL: http://localhost:5000
         run: k6 run performance/users-load-test.js
 
-      - name: Run k6 spike test (/users)
+      - name: Run k6 spike test (/users/:userId)
         env:
           API_URL: http://localhost:5000
         run: k6 run performance/users-spike-test.js
