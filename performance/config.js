@@ -36,8 +36,8 @@ export const SPIKE_TEST_CONFIG = {
   maxVUs: 2000,
   stages: [
     { duration: '20s', target: 10 },    // Baseline
-    { duration: '20s', target: 3000 },  // Sudden spike to 1000
-    { duration: '2m', target: 3000 },   // Sustain spike to observe behavior
+    { duration: '20s', target: 1000 },  // Sudden spike to 1000
+    { duration: '2m', target: 1000 },   // Sustain spike to observe behavior
     { duration: '20s', target: 0 },     // Drop to zero
   ],
 };
