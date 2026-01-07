@@ -25,19 +25,19 @@ export const LOAD_TEST_CONFIG = {
   stages: [
     { duration: '30s', target: 100 },    // Warm up to 100
     { duration: '1m', target: 500 },     // Ramp to 500 VUs
-    { duration: '1m30s', target: 2000 }, // Ramp to 1000 VUs
-    { duration: '3m', target: 2000 },    // Sustain peak at 1000
+    { duration: '1m30s', target: 3000 }, // Ramp to 1000 VUs
+    { duration: '3m', target: 3000 },    // Sustain peak at 1000
     { duration: '1m', target: 0 },       // Ramp down
   ],
 };
 
 // Spike test configuration (sudden traffic surge)
 export const SPIKE_TEST_CONFIG = {
-  maxVUs: 1000,
+  maxVUs: 2000,
   stages: [
     { duration: '20s', target: 10 },    // Baseline
-    { duration: '20s', target: 1000 },  // Sudden spike to 1000
-    { duration: '2m', target: 1000 },   // Sustain spike
+    { duration: '20s', target: 3000 },  // Sudden spike to 1000
+    { duration: '2m', target: 3000 },   // Sustain spike to observe behavior
     { duration: '20s', target: 0 },     // Drop to zero
   ],
 };
