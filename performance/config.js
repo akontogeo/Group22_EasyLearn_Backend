@@ -8,6 +8,8 @@
  * These thresholds ensure tests pass on CI runners while detecting regressions
  */
 
+/* global __ENV */
+
 // Base URL for the API (CI environment)
 export const BASE_URL = __ENV.API_URL || 'http://localhost:5000';
 
