@@ -1,5 +1,5 @@
 import { getCommonThresholds, getLoadTestConfig } from './config.js';
-import { setupUserTest, executeUserTest, createUserTestSummary } from './userTestUtils.js';
+import { setupUserTest, executeUserTest } from './userTestUtils.js';
 
 /**
  * @fileoverview
