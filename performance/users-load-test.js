@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './config.js';
+import { getBaseUrl, getCommonThresholds, getLoadTestConfig, getThinkTime } from './config.js';
 
 /**
  * @fileoverview
@@ -18,12 +18,12 @@ import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './con
  *   - stages: Imported from LOAD_TEST_CONFIG for ramp-up, sustain, and ramp-down.
  */
 export const options = {
-  thresholds: COMMON_THRESHOLDS,
+  thresholds: getCommonThresholds(),
   scenarios: {
     users_load_test: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: LOAD_TEST_CONFIG.stages,
+      stages: getLoadTestConfig().stages,
       gracefulRampDown: '10s',
     },
   },
@@ -38,7 +38,7 @@ export const options = {
  */
 export function setup() {
   // Fetch all users from the API
-  const res = http.get(`${BASE_URL}/users`);
+  const res = http.get(`${getBaseUrl()}/users`);
   check(res, { 'setup: /users is 200': (r) => r.status === 200 });
 
   if (res.status !== 200) {
@@ -89,7 +89,7 @@ export default function (data) {
 
   // Select a random user ID for this iteration
   const id = ids[Math.floor(Math.random() * ids.length)];
-  const url = `${BASE_URL}/users/${encodeURIComponent(id)}`;
+  const url = `${getBaseUrl()}/users/${encodeURIComponent(id)}`;
 
   // Send GET request to fetch user details
   const res = http.get(url);
@@ -101,7 +101,7 @@ export default function (data) {
   });
 
   // Simulate user think time between requests
-  sleep(THINK_TIME);
+  sleep(getThinkTime());
 }
 
 /**

@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './config.js';
+import { getBaseUrl, getCommonThresholds, getLoadTestConfig, getThinkTime } from './config.js';
 
 /**
  * Load Test for /courses endpoint
@@ -13,12 +13,12 @@ import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './con
  */
 
 export const options = {
-  thresholds: COMMON_THRESHOLDS,
+  thresholds: getCommonThresholds(),
   scenarios: {
     courses_load_test: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: LOAD_TEST_CONFIG.stages,
+      stages: getLoadTestConfig().stages,
       gracefulRampDown: '10s',
     },
   },
@@ -32,7 +32,7 @@ export const options = {
  * - Response time is acceptable
  */
 export default function () {
-  const url = `${BASE_URL}/courses`;
+  const url = `${getBaseUrl()}/courses`;
   
   // Make GET request
   const response = http.get(url);
@@ -45,7 +45,7 @@ export default function () {
   });
   
   // Simulate user think time
-  sleep(THINK_TIME);
+  sleep(getThinkTime());
 }
 
 /**

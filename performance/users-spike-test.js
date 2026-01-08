@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, COMMON_THRESHOLDS, SPIKE_TEST_CONFIG, THINK_TIME } from './config.js';
+import { getBaseUrl, getCommonThresholds, getSpikeTestConfig, getThinkTime } from './config.js';
 
 /**
  * Spike Test for /users/:userId (valid IDs fetched in setup)
@@ -12,12 +12,12 @@ import { BASE_URL, COMMON_THRESHOLDS, SPIKE_TEST_CONFIG, THINK_TIME } from './co
  */
 
 export const options = {
-  thresholds: COMMON_THRESHOLDS,
+  thresholds: getCommonThresholds(),
   scenarios: {
     users_spike_test: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: SPIKE_TEST_CONFIG.stages,
+      stages: getSpikeTestConfig().stages,
       gracefulRampDown: '10s',
     },
   },
@@ -25,7 +25,7 @@ export const options = {
 
 // Runs once per test (allowed to make HTTP requests)
 export function setup() {
-  const res = http.get(`${BASE_URL}/users`);
+  const res = http.get(`${getBaseUrl()}/users`);
   check(res, { 'setup: /users is 200': (r) => r.status === 200 });
 
   if (res.status !== 200) {
@@ -61,7 +61,7 @@ export default function (data) {
   if (ids.length === 0) return;
 
   const id = ids[Math.floor(Math.random() * ids.length)];
-  const url = `${BASE_URL}/users/${encodeURIComponent(id)}`;
+  const url = `${getBaseUrl()}/users/${encodeURIComponent(id)}`;
 
   const response = http.get(url);
 
@@ -70,7 +70,7 @@ export default function (data) {
     'response has body': (r) => r.body && r.body.length > 0,
   });
 
-  sleep(THINK_TIME);
+  sleep(getThinkTime());
 }
 
 export function handleSummary(data) {

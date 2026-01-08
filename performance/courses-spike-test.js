@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, COMMON_THRESHOLDS, SPIKE_TEST_CONFIG, THINK_TIME } from './config.js';
+import { getBaseUrl, getCommonThresholds, getSpikeTestConfig, getThinkTime } from './config.js';
 
 /**
  * Spike Test for /courses endpoint
@@ -14,12 +14,12 @@ import { BASE_URL, COMMON_THRESHOLDS, SPIKE_TEST_CONFIG, THINK_TIME } from './co
  */
 
 export const options = {
-  thresholds: COMMON_THRESHOLDS,
+  thresholds: getCommonThresholds(),
   scenarios: {
     courses_spike_test: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: SPIKE_TEST_CONFIG.stages,
+      stages: getSpikeTestConfig().stages,
       gracefulRampDown: '5s',
     },
   },
@@ -33,7 +33,7 @@ export const options = {
  * - Response time remains acceptable during spike
  */
 export default function () {
-  const url = `${BASE_URL}/courses`;
+  const url = `${getBaseUrl()}/courses`;
   
   // Make GET request
   const response = http.get(url);
@@ -47,7 +47,7 @@ export default function () {
   });
   
   // Simulate user think time
-  sleep(THINK_TIME);
+  sleep(getThinkTime());
 }
 
 /**
