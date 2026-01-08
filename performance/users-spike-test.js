@@ -1,6 +1,5 @@
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { getBaseUrl, getCommonThresholds, getSpikeTestConfig, getThinkTime, setupUserTest, executeUserTest, createUserTestSummary } from './config.js';
+import { getCommonThresholds, getSpikeTestConfig } from './config.js';
+import { setupUserTest, executeUserTest, createUserTestSummary } from './userTestUtils.js';
 
 /**
  * Spike Test for /users/:userId (valid IDs fetched in setup)

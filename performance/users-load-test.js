@@ -1,6 +1,5 @@
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { getBaseUrl, getCommonThresholds, getLoadTestConfig, getThinkTime, setupUserTest, executeUserTest, createUserTestSummary } from './config.js';
+import { getCommonThresholds, getLoadTestConfig } from './config.js';
+import { setupUserTest, executeUserTest, createUserTestSummary } from './userTestUtils.js';
 
 /**
  * @fileoverview
