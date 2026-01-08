@@ -7,6 +7,10 @@ This directory contains k6 performance tests for the EasyLearn Backend API.
 - **`config.js`**: Shared configuration, thresholds, and NFRs for all tests
 - **`courses-load-test.js`**: Load test for `/courses` endpoint
 - **`courses-spike-test.js`**: Spike test for `/courses` endpoint
+- **`users-load-test.js`**: Load test for `/users/:userId` endpoint
+- **`users-spike-test.js`**: Spike test for `/users/:userId` endpoint
+
+
 
 ## Non-Functional Requirements (NFRs)
 
@@ -53,7 +57,7 @@ k6 run -e API_URL=http://localhost:5000 performance/courses-load-test.js
 
 ## Test Scenarios
 
-### Load Test (courses-load-test.js)
+### Load Test 
 - **Duration**: ~7 minutes
 - **Pattern**: Gradual ramp-up to sustained load
 - **Stages**:
@@ -63,7 +67,7 @@ k6 run -e API_URL=http://localhost:5000 performance/courses-load-test.js
   4. Sustain: 1000 VUs (3m)
   5. Ramp down: 1000 → 0 VUs (1m)
 
-### Spike Test (courses-spike-test.js)
+### Spike Test 
 - **Duration**: ~3 minutes
 - **Pattern**: Sudden traffic surge
 - **Stages**:
@@ -74,9 +78,9 @@ k6 run -e API_URL=http://localhost:5000 performance/courses-load-test.js
 
 ## Adding New Tests
 
-To add tests for additional routes (e.g., `/users`):
+To add tests for additional routes (e.g., `/example`):
 
-1. Create `users-load-test.js` and `users-spike-test.js`
+1. Create `example-load-test.js` and `example-spike-test.js`
 2. Import config from `config.js`
 3. Update the endpoint URL in the test function
 4. Follow the same structure and thresholds
