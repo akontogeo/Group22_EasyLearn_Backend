@@ -1,6 +1,5 @@
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './config.js';
+import { getCommonThresholds, getLoadTestConfig } from './config.js';
+import { setupUserTest, executeUserTest } from './userTestUtils.js';
 
 /**
  * @fileoverview
@@ -18,12 +17,12 @@ import { BASE_URL, COMMON_THRESHOLDS, LOAD_TEST_CONFIG, THINK_TIME } from './con
  *   - stages: Imported from LOAD_TEST_CONFIG for ramp-up, sustain, and ramp-down.
  */
 export const options = {
-  thresholds: COMMON_THRESHOLDS,
+  thresholds: getCommonThresholds(),
   scenarios: {
     users_load_test: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: LOAD_TEST_CONFIG.stages,
+      stages: getLoadTestConfig().stages,
       gracefulRampDown: '10s',
     },
   },
@@ -37,39 +36,7 @@ export const options = {
  * @returns {Object} Object containing an array of user IDs.
  */
 export function setup() {
-  // Fetch all users from the API
-  const res = http.get(`${BASE_URL}/users`);
-  check(res, { 'setup: /users is 200': (r) => r.status === 200 });
-
-  if (res.status !== 200) {
-    throw new Error(`setup() failed to fetch /users. Status=${res.status}`);
-  }
-
-  // Parse response and extract user array
-  const data = res.json();
-  // Support various response shapes: array, {data: [...]}, {users: [...]}
-  const arr =
-    Array.isArray(data) ? data :
-    Array.isArray(data?.data) ? data.data :
-    Array.isArray(data?.users) ? data.users :
-    null;
-
-  if (!arr || arr.length === 0) {
-    throw new Error('setup() found no users in /users response.');
-  }
-
-  // Extract user IDs, supporting different field names
-  const ids = arr
-    .map((u) => u.userId ?? u.id ?? u._id)
-    .filter(Boolean)
-    .map(String);
-
-  if (ids.length === 0) {
-    throw new Error('setup() could not extract any IDs from /users response.');
-  }
-
-  // Return IDs for use in the main test function
-  return { ids };
+  return setupUserTest();
 }
 
 /**
@@ -81,27 +48,7 @@ export function setup() {
  * @param {Object} data - Data returned from setup(), containing user IDs.
  */
 export default function (data) {
-  const ids = data?.ids || [];
-  if (ids.length === 0) {
-    // If setup failed silently (shouldn't), stop cleanly
-    return;
-  }
-
-  // Select a random user ID for this iteration
-  const id = ids[Math.floor(Math.random() * ids.length)];
-  const url = `${BASE_URL}/users/${encodeURIComponent(id)}`;
-
-  // Send GET request to fetch user details
-  const res = http.get(url);
-
-  // Validate response: status 200 and non-empty body
-  check(res, {
-    'status is 200': (r) => r.status === 200,
-    'response has body': (r) => r.body && r.body.length > 0,
-  });
-
-  // Simulate user think time between requests
-  sleep(THINK_TIME);
+  executeUserTest(data);
 }
 
 /**
