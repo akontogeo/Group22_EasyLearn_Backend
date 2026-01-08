@@ -1,48 +1,81 @@
 /**
- * Shared configuration for k6 performance tests
+ * Shared configuration for k6 performance tests.
  * 
  * NFRs (Non-Functional Requirements) based on local testing:
  * - Local test @ 1000 VUs: P95 = 160ms, 0% error rate
  * - GitHub Actions has less resources, so we use conservative thresholds
  * 
- * These thresholds ensure tests pass on CI runners while detecting regressions
+ * These thresholds ensure tests pass on CI runners while detecting regressions.
  */
 
 /* global __ENV */
 
-// Base URL for the API (CI environment)
-export const BASE_URL = __ENV.API_URL || 'http://localhost:5000';
+/**
+ * Returns the base URL for the API, using environment variable or default.
+ * @returns {string} API base URL
+ */
+export function getBaseUrl() {
+  return __ENV.API_URL || 'http://localhost:5000';
+}
 
-// Common thresholds for all performance tests
-export const COMMON_THRESHOLDS = {
-  // HTTP errors should be less than 1%
-  http_req_failed: ['rate<0.01'],
-  // 95th percentile response time should be under 300ms (conservative for CI)
-  'http_req_duration': ['p(95)<300', 'p(99)<500'],
-};
+/**
+ * Common thresholds for all performance tests.
+ * @returns {Object} Thresholds for k6
+ */
+export function getCommonThresholds() {
+  return {
+    http_req_failed: ['rate<0.01'], // HTTP errors < 1%
+    http_req_duration: ['p(95)<300', 'p(99)<500'], // Response time thresholds
+  };
+}
 
-// Load test configuration (gradual ramp-up for sustained load)
-export const LOAD_TEST_CONFIG = {
-  maxVUs: 2000,
-  stages: [
-    { duration: '30s', target: 100 },    // Warm up to 100
-    { duration: '1m', target: 500 },     // Ramp to 500 VUs
-    { duration: '1m30s', target: 1000 }, // Ramp to 1000 VUs
-    { duration: '3m', target: 1000 },    // Sustain peak at 1000
-    { duration: '1m', target: 0 },       // Ramp down
-  ],
-};
+/**
+ * Helper to create a stage object for k6.
+ * @param {string} duration - Duration of the stage
+ * @param {number} target - Target number of VUs
+ * @returns {Object} Stage configuration
+ */
+function createStage(duration, target) {
+  return { duration, target };
+}
 
-// Spike test configuration (sudden traffic surge)
-export const SPIKE_TEST_CONFIG = {
-  maxVUs: 2000,
-  stages: [
-    { duration: '20s', target: 10 },    // Baseline
-    { duration: '20s', target: 1000 },  // Sudden spike to 1000
-    { duration: '2m', target: 1000 },   // Sustain spike to observe behavior
-    { duration: '20s', target: 0 },     // Drop to zero
-  ],
-};
+/**
+ * Load test configuration (gradual ramp-up for sustained load).
+ * @returns {Object} Load test config for k6
+ */
+export function getLoadTestConfig() {
+  return {
+    maxVUs: 2000,
+    stages: [
+      createStage('30s', 100),     // Warm up to 100
+      createStage('1m', 500),      // Ramp to 500 VUs
+      createStage('1m30s', 1000),  // Ramp to 1000 VUs
+      createStage('3m', 1000),     // Sustain peak at 1000
+      createStage('1m', 0),        // Ramp down
+    ],
+  };
+}
 
-// User think time between requests (in seconds)
-export const THINK_TIME = 1;
+/**
+ * Spike test configuration (sudden traffic surge).
+ * @returns {Object} Spike test config for k6
+ */
+export function getSpikeTestConfig() {
+  return {
+    maxVUs: 2000,
+    stages: [
+      createStage('20s', 10),      // Baseline
+      createStage('20s', 1000),    // Sudden spike to 1000
+      createStage('2m', 1000),     // Sustain spike
+      createStage('20s', 0),       // Drop to zero
+    ],
+  };
+}
+
+/**
+ * User think time between requests (in seconds).
+ * @returns {number} Think time in seconds
+ */
+export function getThinkTime() {
+  return 1;
+}
